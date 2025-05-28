@@ -1,0 +1,22 @@
+{
+  "name": "blog-website-prisma",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "scripts": {
+    "dev": "nodemon --exec bun run ./index.ts"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "6.8.2",
+    "@types/express": "^5.0.2",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10",
+    "prisma": "^6.8.2"
+  }
+}

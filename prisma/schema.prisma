@@ -39,6 +39,12 @@ model User {
   //users blogs that have comments
   blogComments Comment[] @relation("CommentAuthor")
 
+  //notification 1-m rel
+  notificationForAuthorUser Notification[] @relation("notificationFor")
+
+  //notification for the notification generator
+  notificationForTheUserWhoTriggeredIt Notification[] @relation("userWhoGeneratedTheNotification")
+
   //timestamps
   joinedAt  DateTime @default(now()) //it will give the time of now i.e. when the users firsttime creates their account
   updatedAt DateTime @updatedAt //this @updatedAt
@@ -88,20 +94,65 @@ model Comment {
   isReply  Boolean   @default(false)
   parentId Int? //this will be null if its is a top level comment it will contain the id of the comment to which it is replying to
   parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id]) //we will make the realtion over the Comment model id and the parent id 
-  children Comment[] @relation("CommentReplies")//this is A one-to-many self-relation
+  children Comment[] @relation("CommentReplies") //this is A one-to-many self-relation
   //when we have two fileds with the same name prisma automatically manages the bidirectional relationship
   /**
+   * /**
    * /*
    * what it means is that if a comment has two replies then the comment 1 has two childrens [2,3]
    * and comment 2 and 3 have parent 1 so this children [2,3] is automatically managed my prisma
    * prisma automatically knows that if comment A has comment B in its children then it means that comment B will have comment A in its parent
    */
 
+  //comment notification 
+  commentNotification Notification[] @relation("commentNotification")
+
+  //replied comment notification
+  repliedCommentNotification Notification[] @relation("notificationForReplyComment")
+
+  //replied to parent comment id
+  repliedToParentCommentId Notification[] @relation("repliedToParentComment")
+
   commentedAt      DateTime @default(now())
   commentUpdatedAt DateTime @updatedAt
 }
 
-/**
- * nested comment things
- * A comment can have a parent and a comment can have a children
- */
+//defined the enum for notification type
+enum notificationTypeEnum {
+  like
+  comment
+  reply
+}
+
+model Notification {
+  id Int @id @unique @default(autoincrement())
+
+  //what type of notification is that
+  notificationType notificationTypeEnum
+
+  //userid for which this notifcation has be triggered i.e. the author of the blog
+  userId Int
+  user   User @relation("notificationFor", fields: [userId], references: [id])
+
+  //user who triggered the notification like the person who liked the blog or commented on the blog etc...
+  userIdForNotificationGen Int
+  userForNotificationGen   User @relation("userWhoGeneratedTheNotification", fields: [userIdForNotificationGen], references: [id])
+
+  //notification about the comment if someone comments on a post then this fields stores the comment id 
+  commentId           Int?
+  commentNotification Comment? @relation("commentNotification", fields: [commentId], references: [id])
+
+  //notification for the reply comment it stores the comment id of the reply comment
+  repliedCommentId           Int?
+  repliedCommentNotification Comment? @relation("notificationForReplyComment", fields: [repliedCommentId], references: [id])
+
+  //for replied comment we will have to store the id of the parent comment to which it replied to it should be optional because this will only be filled when we will reply to a comment otherwise it will be empty
+  repliedToParentCommentId Int?
+  repliedTOParentComment   Comment? @relation("repliedToParentComment", fields: [repliedToParentCommentId], references: [id])
+
+  //to track weather the notification 
+  notificationSeen Boolean @default(false)
+
+  //notification generation time
+  notificationGenTime DateTime @default(now())
+}

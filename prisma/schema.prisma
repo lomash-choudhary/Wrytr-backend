@@ -1,7 +1,5 @@
-
 generator client {
   provider = "prisma-client-js"
-
 }
 
 datasource db {
@@ -9,9 +7,101 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id Int @id @unique @default(autoincrement())
 
-model  User{
-  id Int @default(autoincrement()) @id
-  username String @unique
-  password String
+  //users personal info
+  fullName  String  @db.VarChar(255) //var char is used to make a cap on the maximum number of characters allowed to be put
+  username  String  @unique
+  password  String
+  isPremium Boolean @default(false) //to give blue tick or gold tick to our consumers
+  avatar    String  @default("")
+  bio       String  @default("") @db.VarChar(400)
+
+  //social links
+  youtube         String @default("")
+  twitter         String @default("")
+  facebook        String @default("")
+  linkedin        String @default("")
+  github          String @default("")
+  personalWebsite String @default("")
+
+  //account info
+  totalPosts Int @default(0) //to count total number of blogs posted
+  totalReads Int @default(0) //to count total number of blogs read
+
+  //google auth
+  google_auth Boolean @default(false) //to check if the user is google authenticated or not 
+
+  //blogs
+  blogs Blogs[] @relation("BlogAuthor")
+
+  //users blogs that have comments
+  blogComments Comment[] @relation("CommentAuthor")
+
+  //timestamps
+  joinedAt  DateTime @default(now()) //it will give the time of now i.e. when the users firsttime creates their account
+  updatedAt DateTime @updatedAt //this @updatedAt
 }
+
+model Blogs {
+  id              Int      @id @unique @default(autoincrement())
+  //blogs information
+  blogTitle       String   @default("")
+  blogBanner      String   @default("")
+  blogDescription String   @default("")
+  content         String[] @default([])
+  tags            String[]
+  authorId        Int
+  author          User     @relation("BlogAuthor", fields: [authorId], references: [id])
+
+  //blog activity
+  blogTotalLikeCount      Int @default(0)
+  blogTotalCommentCount   Int @default(0)
+  blogTotalReads          Int @default(0)
+  blogTotalParentComments Int @default(0) //to calculate the nested comments
+
+  //to check if the blogs is in draft or not?
+  draft Boolean @default(false)
+
+  //comments
+  comments Comment[] @relation("IdOfCommentsOnABlog")
+
+  //creation and updation
+  publishedAt   DateTime @default(now())
+  blogUpdatedAt DateTime @updatedAt
+}
+
+model Comment {
+  id Int @id @unique @default(autoincrement())
+
+  //comments details
+  blogId Int //to store the id of those who have commented on that particular blogs and we made a one to many relation ship since a single post can have multiple comments
+  blog   Blogs @relation("IdOfCommentsOnABlog", fields: [blogId], references: [id])
+
+  //blogs author
+  blogAuthor Int
+  user       User @relation("CommentAuthor", fields: [blogAuthor], references: [id])
+
+  comment String @default("")
+
+  isReply  Boolean   @default(false)
+  parentId Int? //this will be null if its is a top level comment it will contain the id of the comment to which it is replying to
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id]) //we will make the realtion over the Comment model id and the parent id 
+  children Comment[] @relation("CommentReplies")//this is A one-to-many self-relation
+  //when we have two fileds with the same name prisma automatically manages the bidirectional relationship
+  /**
+   * /*
+   * what it means is that if a comment has two replies then the comment 1 has two childrens [2,3]
+   * and comment 2 and 3 have parent 1 so this children [2,3] is automatically managed my prisma
+   * prisma automatically knows that if comment A has comment B in its children then it means that comment B will have comment A in its parent
+   */
+
+  commentedAt      DateTime @default(now())
+  commentUpdatedAt DateTime @updatedAt
+}
+
+/**
+ * nested comment things
+ * A comment can have a parent and a comment can have a children
+ */

@@ -1,8 +1,8 @@
 export class ApiError extends Error{
     statusCode: number
-    data: any
+    data?: any
     error: any
-    stack: any
+    stack?: any
     success:boolean
     constructor(params: ApiErrorType){
         super(params.message);
@@ -21,9 +21,9 @@ export class ApiError extends Error{
 interface ApiErrorType{
     statusCode: number,
     message: string,
-    data:any
+    data?:any
     error: any,
-    stack: any
+    stack?: any
     success:boolean
 }
 

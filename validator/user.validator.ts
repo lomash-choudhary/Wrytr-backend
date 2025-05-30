@@ -1,4 +1,3 @@
-import { password } from "bun";
 import { z } from "zod";
 
 const userSignupSchemaValidator = z.object({
@@ -14,6 +13,7 @@ const userSignupSchemaValidator = z.object({
       "Password must contain atleast one upper, one lower, one numeric and one special character"
     ),
   email: z.string().regex(/^[^@]+@[^@]+\.[^@]+$/, "Please enter a valid email"),
+  fullName: z.string().min(1,"Please enter a valid Full Name").max(255, "The full name is too long please make it short")
 });
 
 export { userSignupSchemaValidator };

@@ -14,6 +14,7 @@ model User {
   fullName  String  @db.VarChar(255) //var char is used to make a cap on the maximum number of characters allowed to be put
   username  String  @unique
   password  String
+  email     String @unique
   isPremium Boolean @default(false) //to give blue tick or gold tick to our consumers
   avatar    String  @default("")
   bio       String  @default("") @db.VarChar(400)

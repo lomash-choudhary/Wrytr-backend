@@ -50,7 +50,7 @@ model User {
   joinedAt  DateTime @default(now()) //it will give the time of now i.e. when the users firsttime creates their account
   updatedAt DateTime @updatedAt //this @updatedAt
 
-  @@index([username])
+  @@index([username, email])
 }
 
 model Blogs {

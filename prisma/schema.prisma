@@ -48,6 +48,8 @@ model User {
   //timestamps
   joinedAt  DateTime @default(now()) //it will give the time of now i.e. when the users firsttime creates their account
   updatedAt DateTime @updatedAt //this @updatedAt
+
+  @@index([username])
 }
 
 model Blogs {
@@ -76,6 +78,8 @@ model Blogs {
   //creation and updation
   publishedAt   DateTime @default(now())
   blogUpdatedAt DateTime @updatedAt
+
+  @@index([blogTitle])
 }
 
 model Comment {

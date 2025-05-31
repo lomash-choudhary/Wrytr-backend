@@ -13,6 +13,7 @@ import { generateAccessToken } from "../utils/GenerateAccessToken";
 
 const userSignup = asyncHandler(async (req: Request, res: Response) => {
   const { fullName, username, password, email } = req.body;
+  console.log(req.body);
   try {
     const doesUserWithSameUsernameAlreadyExists = await client.user.findFirst({
       where: {
@@ -80,16 +81,21 @@ const userSignup = asyncHandler(async (req: Request, res: Response) => {
           accessToken: accessToken,
         },
         statusCode: 200,
-        message: "Signed up on the wrytr successfully",
+        message: "Signed up Successfully on Wrytr App",
       })
     );
   } catch (error) {
-    throw new ApiError({
-      statusCode: 500,
-      message: "Something went wrong while signing up the user on Wrytr App",
-      error: error,
-      success: false,
-    });
+    console.log(error);
+    if (error instanceof ApiError) {
+      throw error;
+    } else {
+      throw new ApiError({
+        statusCode: 500,
+        message: "Something went wrong while signing up the user on Wrytr App",
+        error: error,
+        success: false,
+      });
+    }
   }
 });
 
@@ -101,6 +107,7 @@ const userLogin = asyncHandler(async (req: Request, res: Response) => {
         email,
       },
     });
+    console.log(doesUserEvenExists);
     if (!doesUserEvenExists) {
       throw new ApiError({
         statusCode: 404,
@@ -109,7 +116,7 @@ const userLogin = asyncHandler(async (req: Request, res: Response) => {
         error: "User not found with the given email",
       });
     }
-    const comparedPassword = bcrypt.compare(
+    const comparedPassword = await bcrypt.compare(
       password,
       doesUserEvenExists.password
     );
@@ -124,23 +131,25 @@ const userLogin = asyncHandler(async (req: Request, res: Response) => {
     const accessToken = generateAccessToken(doesUserEvenExists.id);
 
     res.status(200).json(
-        new ApiResponse(
-            {
-                data:{
-                    accessToken
-                },
-                statusCode:200,
-                message:"Logged In Success fully on Wrytr App"
-            }
-        )
-    )
+      new ApiResponse({
+        data: {
+          accessToken,
+        },
+        statusCode: 200,
+        message: "Logged In Successfully on Wrytr App",
+      })
+    );
   } catch (error) {
-    throw new ApiError({
+    if (error instanceof ApiError) {
+      throw error
+    } else {
+      throw new ApiError({
         statusCode: 500,
         message: "Something went wrong while logging in on Wrytr App",
         success: false,
         error: error,
-    })
+      });
+    }
   }
 });
 

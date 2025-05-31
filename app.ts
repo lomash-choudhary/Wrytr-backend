@@ -3,6 +3,7 @@ dotenv.config({
   path: "./.env",
 });
 import express from "express";
+import cors from "cors"
 
 const app = express();
 app.use(express.json());
@@ -11,6 +12,12 @@ app.use(express.json({ limit: process.env.JSON_PAYLOAD_LIMIT }));
 app.use(
   express.urlencoded({ extended: true, limit: process.env.URL_PAYLOAD_LIMIT })
 );
+app.use(cors(
+  {
+    origin: "*",
+    credentials:true
+  }
+))
 
 import { userRouter } from "./routes/user.route";
 import { serverHealthRouter } from "./routes/healthCheck.route";

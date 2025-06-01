@@ -134,6 +134,8 @@ const userLogin = asyncHandler(async (req: Request, res: Response) => {
       new ApiResponse({
         data: {
           accessToken,
+          profileImage: doesUserEvenExists.avatar,
+          username: doesUserEvenExists.username
         },
         statusCode: 200,
         message: "Logged In Successfully on Wrytr App",
